@@ -27,8 +27,9 @@ import ApiKeys
 
 
 def tick():
-	global clockface, clockrect, lasttimestr
-	
+	global clockface, clockrect, lasttimestr, bottom
+	bottomtext = "Waiting..."
+	bottom.setText(bottomtext)
 	if Config.DateLocale != "":
 		try:
 			locale.setlocale(locale.LC_TIME, Config.DateLocale)
@@ -43,6 +44,10 @@ def tick():
 	if lasttimestr != timestr:
 		clockface.setText(timestr.lower())
 	lasttimestr = timestr
+
+def buttonClick():
+	#bottom.setText("Button Pushed")
+  bottom.setText(textbox.text())
 
 def qtstart():
 	global ctimer
@@ -72,7 +77,7 @@ if not os.path.isfile(configname + ".py"):
 Config = __import__(configname)
 lasttimestr = ""
 
-#Start App
+#Start building app
 app = QtGui.QApplication(sys.argv)
 desktop = app.desktop()
 rec = desktop.screenGeometry()
@@ -90,14 +95,15 @@ w.setStyleSheet("QWidget { background-color: black;}")
 frame1 = QtGui.QFrame(w)
 frame1.setObjectName("frame1")
 frame1.setGeometry(0, 0, width, height)
-frame1.setStyleSheet("#frame1 { background-color: black;}") #+ 
-											#"0  0  0  0 stretch stretch;}")
+frame1.setStyleSheet("#frame1 { background-color: black;}")
+
 foreGround = QtGui.QFrame(frame1)
 foreGround.setObjectName("foreGround")
 foreGround.setStyleSheet("#foreGround { background-color: " +
 												"transparent; }")
 foreGround.setGeometry(0, 0, width, height)
 
+#Top Clock
 if Config.digital:
 	clockface = QtGui.QLabel(foreGround)
 	clockface.setObjectName("clockface")
@@ -116,6 +122,29 @@ if Config.digital:
 												 Config.fontattr + "}")
 	clockface.setAlignment(Qt.AlignCenter)
 	clockface.setGeometry(clockrect)
+
+#Bottom Text
+bottom = QtGui.QLabel(foreGround)
+bottom.setObjectName("test")
+bottom.setStyleSheet("#test { font-family: sans-serif; color: " +
+										Config.digitalcolor + "; background-color: transparent; " +
+										"font-size: " + str(int(Config.digitalsize * xscale)) +
+										"px; }")
+bottom.setAlignment(Qt.AlignCenter | Qt.AlignTop)
+bottom.setGeometry(0, height - 175, width, 175)
+
+#Button Attempt
+button = QtGui.QPushButton("Push me", foreGround)
+button.setObjectName('button')
+button.setStyleSheet("#button { background-color: white; }")
+button.setGeometry(width/2 - 50, height/2 - 25, 100, 50)
+button.clicked.connect(buttonClick)
+
+#Textbox
+textbox = QtGui.QLineEdit(foreGround)
+textbox.setObjectName('textbox')
+textbox.setStyleSheet("#textbox { background-color: white; }")
+textbox.setGeometry(width/2-80, height/2-55, 160, 25)
 
 manager = QtNetwork.QNetworkAccessManager()
 stimer = QtCore.QTimer()
